@@ -1,0 +1,28 @@
+  [
+    {
+      "name": "${name}",
+      "image": "${image}",
+      "entryPoint": [],
+      "essential": true,
+      "environment": [
+        {"name": "VARNAME", "value": "VARVAL"}
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "${awslogs-group}",
+          "awslogs-region": "${region}",
+          "awslogs-stream-prefix": "${logs-prefix}"
+        }
+      },
+      "portMappings": [
+        {
+          "containerPort": 8080,
+          "hostPort": 8080
+        }
+      ],
+      "cpu": 256,
+      "memory": 512,
+      "networkMode": "awsvpc"
+    }
+  ]

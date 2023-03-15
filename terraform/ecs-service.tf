@@ -4,7 +4,8 @@ resource "aws_ecs_service" "aws-ecs-service" {
   task_definition      = "${aws_ecs_task_definition.aws-ecs-task.family}:${max(aws_ecs_task_definition.aws-ecs-task.revision, data.aws_ecs_task_definition.main.revision)}"
   launch_type          = "FARGATE"
   scheduling_strategy  = "REPLICA"
-  desired_count        = 1
+  desired_count        = 2
+
   force_new_deployment = true
 
   network_configuration {
@@ -93,6 +94,11 @@ resource "aws_lb_target_group" "target_group" {
   target_type = "ip"
   vpc_id      = data.aws_vpc.vpc.id
 
+  stickiness {
+    type = "lb_cookie"
+    cookie_duration = 86400
+  }
+
   health_check {
     healthy_threshold   = "3"
     interval            = "300"
@@ -114,8 +120,16 @@ resource "aws_lb_listener" "listener" {
   port              = "80"
   protocol          = "HTTP"
 
+
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.target_group.id
   }
 }
+
+#resource "aws_lb_cookie_stickiness_policy" "stickiness_policy" {
+#  name                     = "stickiness_policy"
+#  load_balancer            = aws_alb.application_load_balancer.id
+#  lb_port                  = 80
+#  cookie_expiration_period = 600
+#}

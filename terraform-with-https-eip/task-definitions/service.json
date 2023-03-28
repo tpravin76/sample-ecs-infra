@@ -1,0 +1,37 @@
+  [
+    {
+      "name": "${name}",
+      "image": "${image}",
+      "entryPoint": [],
+      "essential": true,
+      "environment": [
+        {"name": "myTestName", "valueFrom": "myTestValue"}
+      ],
+      "secrets": [
+        {"name": "SF_USER", "valueFrom": "arn:aws:secretsmanager:us-east-1:817832525236:secret:sch-ingestor/qa/sf.user-fkL3VD"},
+        {"name": "SF_PASS", "valueFrom": "arn:aws:secretsmanager:us-east-1:817832525236:secret:sch-ingestor/qa/sf.pass-KJI5w7"},
+        {"name": "SF_SANDBOX", "valueFrom": "arn:aws:secretsmanager:us-east-1:817832525236:secret:sch-ingestor/qa/sf.sandbox-aiKzvk"},
+        {"name": "SF_CLIENT_ID", "valueFrom": "arn:aws:secretsmanager:us-east-1:817832525236:secret:sch-ingestor/qa/sf.client_id-KJDqKT"},
+        {"name": "SF_CLIENT_SECRET", "valueFrom": "arn:aws:secretsmanager:us-east-1:817832525236:secret:sch-ingestor/qa/sf.client_secret-2dPCN4"},
+        {"name": "ES_PASS", "valueFrom": "arn:aws:secretsmanager:us-east-1:817832525236:secret:sch-ingestor/qa/es.pass-RtxwYF"},
+        {"name": "REPLICATE_PASS", "valueFrom": "arn:aws:secretsmanager:us-east-1:817832525236:secret:sch-ingestor/qa/replicate.pass-LTkLty"}
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "${awslogs-group}",
+          "awslogs-region": "${region}",
+          "awslogs-stream-prefix": "${logs-prefix}"
+        }
+      },
+      "portMappings": [
+        {
+          "containerPort": 8080,
+          "hostPort": 8080
+        }
+      ],
+      "cpu": 1024,
+      "memory": 2048,
+      "networkMode": "awsvpc"
+    }
+  ]

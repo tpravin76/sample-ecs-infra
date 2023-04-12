@@ -1,0 +1,94 @@
+  [
+    {
+      "essential": true,
+      "image": "amazon/aws-for-fluent-bit:stable",
+      "name": "log_router",
+      "firelensConfiguration":{
+        "type":"fluentbit",
+        "options":{
+          "enable-ecs-log-metadata":"true"
+        }
+      },
+      "memoryReservation": 50
+    },
+    {
+      "name": "${name}",
+      "image": "${image}",
+      "entryPoint": [],
+      "essential": true,
+      "environment": [
+        {"name": "myTestName", "valueFrom": "myTestValue"}
+      ],
+      "secrets": [
+        {"name": "SF_USER", "valueFrom": "${SF_USER}"},
+        {"name": "SF_PASS", "valueFrom": "${SF_PASS}"},
+        {"name": "SF_SANDBOX", "valueFrom": "${SF_SANDBOX}"},
+        {"name": "SF_CLIENT_ID", "valueFrom": "${SF_CLIENT_ID}"},
+        {"name": "SF_CLIENT_SECRET", "valueFrom": "${SF_CLIENT_SECRET}"},
+        {"name": "ES_PASS", "valueFrom": "${ES_PASS}"},
+        {"name": "REPLICATE_PASS", "valueFrom": "${REPLICATE_PASS}"}
+      ],
+      "logConfiguration": {
+        "logDriver":"awsfirelens",
+        "options": {
+          "Name": "datadog",
+          "Host": "http-intake.logs.datadoghq.com",
+          "TLS": "on",
+          "dd_service": "sample-app-service",
+          "dd_source": "${name}",
+          "dd_tags": "project:sample-app-dev",
+          "provider": "ecs",
+          "retry_limit": "2"
+        },
+        "secretOptions": [{
+          "name": "apikey",
+          "valueFrom": "${DATADOG_API_KEY}"
+        }]
+      },
+      "portMappings": [
+        {
+          "containerPort": 8080,
+          "hostPort": 8080
+        }
+      ],
+      "cpu": 1024,
+      "memory": 2048,
+      "networkMode": "awsvpc"
+    },
+    {
+      "image": "datadog/agent:latest",
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "${awslogs-group}",
+          "awslogs-region": "${region}",
+          "awslogs-stream-prefix": "datadog"
+        }
+      },
+      "cpu": 10,
+      "memory": 256,
+      "mountPoints": [],
+      "environment": [
+        {
+          "name": "ECS_FARGATE",
+          "value": "true"
+        },
+        {
+          "name": "DD_PROCESS_AGENT_ENABLED",
+          "value": "true"
+        },
+        {
+          "name": "DD_DOGSTATSD_NON_LOCAL_TRAFFIC",
+          "value": "true"
+        }
+      ],
+      "secrets": [
+        {
+          "name": "DD_API_KEY",
+          "valueFrom": "${DATADOG_API_KEY}"
+        }
+      ],
+      "name": "api-server-datadog-agent"
+    }
+
+  ]

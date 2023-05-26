@@ -1,0 +1,62 @@
+  [
+    {
+      "essential": true,
+      "image": "amazon/aws-for-fluent-bit:stable",
+      "name": "log_router",
+      "firelensConfiguration":{
+        "type":"fluentbit",
+        "options":{
+          "enable-ecs-log-metadata":"true"
+        }
+      },
+      "memoryReservation": 50
+    },
+    {
+      "name": "${name}",
+      "image": "${image}",
+      "entryPoint": [],
+      "essential": true,
+      "environment": [
+        {"name": "DD_DOCKER_LABELS_AS_TAGS", "value": "{\"com.docker.compose.service\":\"${name}\"}"},
+        {"name":"spring.profiles.active","value":"${ENVIRONMENT}"}
+      ],
+      "secrets": [
+        {"name": "DYNAMODB_ACCESSKEY", "valueFrom": "${DYNAMODB_ACCESSKEY}"},
+        {"name": "DYNAMODB_ACCESSSECRET", "valueFrom": "${DYNAMODB_ACCESSSECRET}"},
+        {"name": "SF_USER", "valueFrom": "${SF_USER}"},
+        {"name": "SF_PASS", "valueFrom": "${SF_PASS}"},
+        {"name": "SF_CLIENT_ID", "valueFrom": "${SF_CLIENT_ID}"},
+        {"name": "SF_CLIENT_SECRET", "valueFrom": "${SF_CLIENT_SECRET}"},
+        {"name": "JWT_SECRET", "valueFrom": "${JWT_SECRET}"},
+        {"name": "ES_PRIMARY_USER", "valueFrom": "${ES_PRIMARY_USER}"},
+        {"name": "ES_PRIMARY_PASS", "valueFrom": "${ES_PRIMARY_PASS}"}
+      ],
+      "logConfiguration": {
+        "logDriver":"awsfirelens",
+        "options": {
+          "Name": "datadog",
+          "Host": "http-intake.logs.datadoghq.com",
+          "TLS": "on",
+          "dd_service": "${name}",
+          "dd_source": "${name}",
+          "dd_tags": "project:${name}",
+          "provider": "ecs",
+          "retry_limit": "2"
+        },
+        "secretOptions": [{
+          "name": "apikey",
+          "valueFrom": "${DATADOG_API_KEY}"
+        }]
+      },
+      "portMappings": [
+        {
+          "containerPort": 8080,
+          "hostPort": 8080
+        }
+      ],
+      "cpu": 1024,
+      "memory": 2048,
+      "networkMode": "awsvpc"
+    }
+
+  ]
